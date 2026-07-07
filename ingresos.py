@@ -1,7 +1,7 @@
 # Funcion para registrar ingresos
 def registrar_ingreso(conn, cursor):
     # Preguntar datos
-    fecha = input("Ingrese fecha: \n")
+    fecha = input("Ingrese fecha (AAAA-MM-DD): \n")
     nombre = input("Ingrese nombre: \n")
     baño = float(input("Ingrese monto del baño: \n"))
     agua = float(input("Ingrese monto del agua: \n"))

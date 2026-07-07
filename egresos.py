@@ -1,7 +1,7 @@
 # Funcion para registrar egresos
 def registrar_egreso(conn, cursor):
     # Preguntar datos
-    fecha = input("Ingrese fecha: \n")
+    fecha = input("Ingrese fecha (AAAA-MM-DD): \n")
     concepto = input("Ingrese concepto: \n")
     monto = float(input("Ingrese el monto: \n"))
     
