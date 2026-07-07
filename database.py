@@ -12,7 +12,7 @@ def conectar():
     return conn, cursor
 
 def crear_tablas(cursor):
-    # Crear tabla
+    # Crear tabla Ingresos y Egresos
     cursor.execute("""CREATE TABLE IF NOT EXISTS Ingresos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 fecha TEXT,
@@ -20,5 +20,12 @@ def crear_tablas(cursor):
                 baño REAL,
                 agua REAL,
                 papel REAL                  
+    )
+    """)
+    cursor.execute("""CREATE TABLE IF NOT EXISTS Egresos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha TEXT,
+                concepto TEXT,
+                monto REAL               
     )
     """)

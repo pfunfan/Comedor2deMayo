@@ -1,5 +1,6 @@
 from database import conectar, crear_tablas 
 from ingresos import registrar_ingreso, mostrar_ingresos
+from egresos import registrar_egreso, mostrar_egresos
 
 # Conectarse a la base de datos
 conn, cursor = conectar()
@@ -12,9 +13,11 @@ while True:
     print("""
     =========== COMEDOR POPULAR ===========
           
-    1. Registrar ingreso
-    2. Mostrar ingresos
-    3. Salir
+    1. Registrar Ingreso
+    2. Registrar Egreso
+    3. Mostrar Ingresos
+    4. Mostrar Egresos
+    5. Salir
     """)
 
     opcion = int(input("Seleccione una opción: "))
@@ -23,11 +26,14 @@ while True:
         case 1:
             registrar_ingreso(conn, cursor)
         case 2:
-            mostrar_ingresos(cursor)
+            registrar_egreso(conn, cursor)
         case 3:
+            mostrar_ingresos(cursor)
+        case 4:
+            mostrar_egresos(cursor)
+        case 5:
             #Cerrar la conexión
             conn.close()
             break
         case _:
             print("Opcion no válida.")
-            
