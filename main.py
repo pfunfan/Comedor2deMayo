@@ -1,7 +1,7 @@
-from database import conectar, crear_tablas 
-from ingresos import registrar_ingreso, mostrar_ingresos
-from egresos import registrar_egreso, mostrar_egresos
-from pdf import generar_pdf
+from database import *
+from ingresos import *
+from egresos import *
+from pdf import *
 
 # Conectarse a la base de datos
 conn, cursor = conectar()
@@ -18,8 +18,9 @@ while True:
     2. Registrar Egreso
     3. Mostrar Ingresos
     4. Mostrar Egresos
-    5. Generar PDF
-    6. Salir
+    5. Editar Ingreso
+    6. Generar PDF
+    7. Salir
     """)
 
     opcion = int(input("Seleccione una opción: "))
@@ -34,12 +35,16 @@ while True:
         case 4:
             mostrar_egresos(cursor)
         case 5:
+            editar_ingreso(conn, cursor)
+        case 6:
             month = int(input("Ingrese mes: \n"))
             year = int(input("Ingrese año: \n"))
             generar_pdf(conn, month, year)
-        case 6:
+        case 7:
             #Cerrar la conexión
             conn.close()
             break
         case _:
             print("Opcion no válida.")
+
+    
