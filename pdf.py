@@ -1,54 +1,58 @@
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
+def ingresos_encontrados(cursor, fecha):
+    # Agrega '%' al final para buscar todas las fechas que comiencen
+    # con el año y mes ingresados (Ejemplo: "2026-07%").
+    patron_buscado = f"{fecha}%"
 
-# Función para generar el PDF
-def generar_pdf(conn, month, year):
-    # Meses
-    match month:
-        case 1:
-            nombre_mes = "ENERO"
-        case 2:
-            nombre_mes = "FEBRERO"
-        case 3:
-            nombre_mes = "MARZO"
-        case 4:
-            nombre_mes = "ABRIL"
-        case 5:
-            nombre_mes = "MAYO"
-        case 6:
-            nombre_mes = "JUNIO"
-        case 7:
-            nombre_mes = "JULIO"
-        case 8:
-            nombre_mes = "AGOSTO"
-        case 9:
-            nombre_mes = "SETIEMBRE"
-        case 10:
-            nombre_mes = "OCTUBRE"
-        case 11:
-            nombre_mes = "NOVIEMBRE"
-        case 12:
-            nombre_mes = "DICIEMBRE"
-        case _:
-            nombre_mes = "MES DESCONOCIDO"
+    # Ejecuta la consulta SQL.
+    # '?' es un marcador de posición que será reemplazado por el valor
+    # de 'patron_buscado' de forma segura.
+    cursor.execute("SELECT * FROM Ingresos WHERE fecha LIKE ?", (patron_buscado,))
 
-    # Nombre del archivo PDF y tamaño de la página
-    documento = SimpleDocTemplate("reporte.pdf", pagesize=letter)
+    # Obtiene todos los registros encontrados.
+    # Si no existen coincidencias, devuelve una lista vacía ([]).
+    ingresos = cursor.fetchall()
 
-    # Obtener estilos predeterminados de ReportLab
-    estilos = getSampleStyleSheet()
+    # Una lista vacía se evalúa como False en Python.
+    # Si no existen ingresos para el período solicitado, se informa al usuario.
+    if not ingresos:
+        print(f"No existen ingresos para el año y mes {patron_buscado}.")
+    else:
+        print("\n========== INGRESOS ==========\n")
 
-    # Lista donde se agregan todos los elementos que aparecerán en el PDF
-    contenido = []
+        # Cada elemento de 'ingresos' es una tupla con este formato:
+        # (id, fecha, nombre, baño, agua, papel)
+        # Python asigna automáticamente cada columna a su variable.
+        for _, fecha, nombre, baño, agua, papel in ingresos:
 
-    titulo = f"INGRESOS {nombre_mes} {year} (BAÑO)"
+            # '_' recibe el ID del registro, pero no se utilizará.
+            print(f"Fecha: {fecha} | Nombre: {nombre} | S/.Baño: {baño} | S/.Agua: {agua} | S/.Papel: {papel}")
 
-    # Agregar un título al documento
-    text = Paragraph(titulo, estilos["Title"])
-    contenido.append(text)
 
-    # Construir y guardar el PDF
-    documento.build(contenido)
+def egresos_encontrados(cursor, fecha):
+    # Agrega '%' al final para buscar todas las fechas que comiencen
+    # con el año y mes ingresados (Ejemplo: "2026-07%").
+    patron_buscado = f"{fecha}%"
 
-    print("PDF generado correctamente.")
+    # Ejecuta la consulta SQL.
+    # '?' es un marcador de posición que será reemplazado por el valor
+    # de 'patron_buscado' de forma segura.
+    cursor.execute("SELECT * FROM Egresos WHERE fecha LIKE ?", (patron_buscado,))
+
+    # Obtiene todos los registros encontrados.
+    # Si no existen coincidencias, devuelve una lista vacía ([]).
+    egresos = cursor.fetchall()
+
+    # Una lista vacía se evalúa como False en Python.
+    # Si no existen egresos para el período solicitado, se informa al usuario.
+    if not egresos:
+        print(f"No existen egresos para el año y mes {patron_buscado}.")
+    else:
+        print("\n========== EGRESOS ==========\n")
+
+        # Cada elemento de 'egresos' es una tupla con este formato:
+        # (id, fecha, concepto, monto)
+        # Python asigna automáticamente cada columna a su variable.
+        for _, fecha, concepto, monto in egresos:
+
+            # '_' recibe el ID del registro, pero no se utilizará.
+            print(f"Fecha: {fecha} | Concepto: {concepto} | Monto: {monto}")

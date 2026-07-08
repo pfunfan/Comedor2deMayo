@@ -72,13 +72,11 @@ while True:
         else:
             print("Opción no válida. Intente de nuevo.")
     elif opcion_main == 3:
-        month = int(input("Ingrese mes: "))
-        year = int(input("Ingrese año: "))
-        generar_pdf(conn, month, year)
+        opcion_fecha = input("De que fecha desea generar el PDF (AAAA-MM): ")
+        ingresos_encontrados(cursor, opcion_fecha)
+        egresos_encontrados(cursor, opcion_fecha)
     elif opcion_main == 0:
         conn.close()
         break
     else:
         print("Opcion no válida. Intente de nuevo.")
-
-    
