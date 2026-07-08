@@ -20,8 +20,10 @@ while True:
     4. Mostrar Egresos
     5. Editar Ingreso
     6. Editar Egreso
-    7. Generar PDF
-    8. Salir
+    7. Eliminar Ingreso
+    8. Eliminar Egreso
+    9. Generar PDF
+    10. Salir
     """)
 
     opcion = int(input("Seleccione una opción: "))
@@ -40,10 +42,14 @@ while True:
         case 6:
             editar_egreso(conn, cursor)
         case 7:
+            eliminar_ingreso(conn, cursor)
+        case 8:
+            eliminar_egreso(conn, cursor)
+        case 9:
             month = int(input("Ingrese mes: \n"))
             year = int(input("Ingrese año: \n"))
             generar_pdf(conn, month, year)
-        case 8:
+        case 10:
             #Cerrar la conexión
             conn.close()
             break

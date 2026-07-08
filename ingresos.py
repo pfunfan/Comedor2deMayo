@@ -28,7 +28,7 @@ def mostrar_ingresos(cursor):
         print(registro)
 
 def editar_ingreso(conn, cursor):
-    id_ingreso = int(input("Escriba el ID: \n"))
+    id_ingreso = int(input("Ingrese el ID: \n"))
 
     # Consultar si el ID existe en la base de datos
     cursor.execute("SELECT * FROM Ingresos WHERE id = ?", (id_ingreso,)) # (id_ingreso,) tupla de un solo elemento
@@ -40,16 +40,17 @@ def editar_ingreso(conn, cursor):
     if fila is None:
         print(f"No existe el ID = {id_ingreso} en la base de datos.\n")
     else:
-        print(f"""DATOS ACTUALES: 
+        print(f"""
+                DATOS ACTUALES 
               
-              Fecha : {fila[1]}
-              Nombre: {fila[2]}
-              Baño  : {fila[3]}
-              Agua  : {fila[4]}
-              Papel : {fila[5]}
+        Fecha : {fila[1]}
+        Nombre: {fila[2]}
+        Baño  : {fila[3]}
+        Agua  : {fila[4]}
+        Papel : {fila[5]}
 
-              Ingrese los nuevos datos.
-              (Presione Enter para conservar el valor actual)
+        Ingrese los nuevos datos.
+        (Presione Enter para conservar el valor actual)
         """)
 
         # Lógica para guardar o mantener datos
@@ -97,3 +98,39 @@ def editar_ingreso(conn, cursor):
         # Guardar cambios
         conn.commit()
         print("Ingreso actualizado correctamente.\n")
+
+def eliminar_ingreso(conn, cursor):
+    id_ingreso = int(input("Ingrese el ID: \n"))
+
+    # Consultar si el ID existe en la Base de datos
+    cursor.execute("SELECT * FROM Ingresos WHERE id = ?", (id_ingreso,))
+
+    # Guardar la fila seleccionada en el cursor
+    fila = cursor.fetchone()
+
+    # Comprobar si existe el ID en la base de datos
+    if fila is None:
+        print(f"No existe el ID = {id_ingreso} en la base de datos.\n")
+    else:
+        # Mostrar registro
+        print(f"""
+                DATOS ACTUALES:
+                     
+        Fecha : {fila[1]}
+        Nombre: {fila[2]}
+        Baño  : {fila[3]}
+        Agua  : {fila[4]}
+        Papel : {fila[5]}
+        """)
+
+        # Confirmar para eliminar y opciones
+        confirmacion = int(input("¿Esta seguro de eliminar el ingreso en pantalla? (1.Si  2.No): "))
+        if confirmacion == 1:
+            cursor.execute("DELETE FROM Ingresos WHERE id = ?", (id_ingreso,))
+            # Guardar cambios
+            conn.commit()
+            print("Listo. Ingreso eliminado correctamente.\n")
+        elif confirmacion == 2:
+            print("Ok. Redirigiendo al menu.\n")
+        else:
+            print("Error: redirigiendo al menu.\n")     

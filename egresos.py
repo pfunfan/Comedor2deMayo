@@ -23,8 +23,7 @@ def mostrar_egresos(cursor):
     
     # Ver resultado
     egresos = cursor.fetchall()
-    for egreso in egresos:
-        print(egreso)
+    print("""d""")
 
 def editar_egreso(conn, cursor):
     id_egreso = int(input("Escriba el ID: \n"))
@@ -39,14 +38,15 @@ def editar_egreso(conn, cursor):
     if fila is None:
         print(f"No existe el ID = {id_egreso} en la base de datos")
     else:
-        print(f"""DATOS ACTUALES: 
+        print(f"""
+                DATOS ACTUALES: 
               
-              Fecha   : {fila[1]}
-              Concepto: {fila[2]}
-              Monto   : {fila[3]}
+        Fecha   : {fila[1]}
+        Concepto: {fila[2]}
+        Monto   : {fila[3]}
 
-              Ingrese los nuevos datos.
-              (Presione Enter para conservar el valor actual)
+        Ingrese los nuevos datos.
+        (Presione Enter para conservar el valor actual)
         """)
 
         # Lógica para guardar o mantener datos
@@ -80,3 +80,37 @@ def editar_egreso(conn, cursor):
         #Guardar cambios
         conn.commit()
         print("Egreso actualizado correctamente.\n")
+
+def eliminar_egreso(conn, cursor):
+    id_egreso = int(input("Ingrese el ID: \n"))
+
+    # Consultar si el ID existe en la Base de datos
+    cursor.execute("SELECT * FROM Egresos WHERE id = ?", (id_egreso,))
+
+    # Guardar la fila seleccionada en el cursor
+    fila = cursor.fetchone()
+
+    # Comprobar si existe el ID en la base de datos
+    if fila is None:
+        print(f"No existe el ID = {id_egreso} en la base de datos.\n")
+    else:
+        # Mostrar registro
+        print(f"""
+                DATOS ACTUALES
+                     
+        Fecha   : {fila[1]}
+        Concepto: {fila[2]}
+        Monto   : {fila[3]}
+        """)
+
+        # Confirmar para eliminar y opciones
+        confirmacion = int(input("¿Esta seguro de eliminar el egreso en pantalla? (1.Si  2.No): "))
+        if confirmacion == 1:
+            cursor.execute("DELETE FROM Egresos WHERE id = ?", (id_egreso,))
+            # Guardar cambios
+            conn.commit()
+            print("Listo. Egreso eliminado correctamente.\n")
+        elif confirmacion == 2:
+            print("Ok. Redirigiendo al menu.\n")
+        else:
+            print("Error: redirigiendo al menu.\n")  
