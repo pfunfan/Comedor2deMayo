@@ -114,7 +114,7 @@ def eliminar_ingreso(conn, cursor):
     else:
         # Mostrar registro
         print(f"""
-                DATOS ACTUALES:
+                DATOS ACTUALES
                      
         Fecha : {fila[1]}
         Nombre: {fila[2]}

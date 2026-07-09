@@ -40,7 +40,7 @@ def editar_egreso(conn, cursor):
         print(f"No existe el ID = {id_egreso} en la base de datos")
     else:
         print(f"""
-                DATOS ACTUALES: 
+                DATOS ACTUALES
               
         Fecha   : {fila[1]}
         Concepto: {fila[2]}
@@ -97,7 +97,7 @@ def eliminar_egreso(conn, cursor):
     else:
         # Mostrar registro
         print(f"""
-                DATOS ACTUALES:
+                DATOS ACTUALES
                      
         Fecha   : {fila[1]}
         Concepto: {fila[2]}
