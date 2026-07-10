@@ -73,21 +73,24 @@ def fecha_texto(fecha):
     elif fecha[-2:] == "12":
         return "DICIEMBRE"
 
-def crear_pdf(fecha, ingresos, total_ingresos):
-    # Crea el documento PDF.
-    doc = SimpleDocTemplate(f"{fecha}.pdf")
+def total_ingresos_egresos(ingresos, egresos):
+    total_ingresos = 0
 
-    # Lista donde se irán agregando todos los elementos del reporte.
-    elementos = []
+    for _, _, _, baño, agua, papel in ingresos:
+        total_ingreso = baño + agua + papel
+        total_ingresos += total_ingreso
+    
+    total_egresos = 0
+    for _, _, _, monto in egresos:
+        total_egresos += monto
+    
+    return total_ingresos, total_egresos
 
-    # Obtiene los estilos predeterminados de ReportLab.
-    estilos = getSampleStyleSheet()
-    texto = (
-        f"COMEDOR POPULAR N°1 (2 DE MAYO)<br/><br/>"
-        f"INGRESOS REPORTE MENSUAL<br/>"
-        f"{fecha_texto(fecha)} {fecha[:4]}"
-    )
+def crear_listas_de_datos(ingresos, egresos):
 
+    i, e = total_ingresos_egresos(ingresos, egresos)
+
+    # Lista para ingresos
     datos_ingresos = [
         ["Fecha", "Nombre", "S/.Baño", "S/.Agua", "S/.Papel", "S/.Total"],
     ]
@@ -96,17 +99,21 @@ def crear_pdf(fecha, ingresos, total_ingresos):
         total = baño + agua + papel
         fila = [fecha, nombre, f"{baño:.2f}", f"{agua:.2f}", f"{papel:.2f}", f"{total:.2f}"]
         datos_ingresos.append(fila)
+    datos_ingresos.append(["", "", "", "", "S/.TOTAL", f"{i:.2f}"])
 
-    datos_ingresos.append(["", "", "", "", "S/.TOTAL", f"{total_ingresos:.2f}"])
+    # Lista para egresos
+    datos_egresos = [
+        ["Fecha", "Concepto", "S/.Monto"]
+    ]
 
+    for _, fecha, concepto, monto in egresos:
+        fila = [fecha, concepto, f"{monto:.2f}"]
+        datos_egresos.append(fila)
+    datos_egresos.append(["", "S/.TOTAL", f"{e:.2f}"])
 
-    # Parrafo y agregarlo a la lista
-    encabezado = Paragraph(texto, estilos["Title"])
-    elementos.append(encabezado)
+    return datos_ingresos, datos_egresos
 
-    # Espacio entre titulo y tabla Spacer(ancho, alto)
-    elementos.append(Spacer(1, 20))
-
+def crear_tablas_pdf(datos_ingresos, datos_egresos, elementos):
     tabla_ingresos = Table(datos_ingresos)
     tabla_ingresos.setStyle(
         TableStyle([
@@ -131,10 +138,83 @@ def crear_pdf(fecha, ingresos, total_ingresos):
             ("FONTSIZE", (0, 0), (-1, -1), 11)
         ])
     )
+
+    tabla_egresos = Table(datos_egresos)
+    tabla_egresos.setStyle(
+        TableStyle([
+            # Configura los bordes de la tabla completa
+            # Sintaxis: ("ESTILO", (Col,Fila_Inicio), (Col,Fila_Fin), Grosor, Color), (c, f)
+            ("GRID", (0, 0), (-1, -1), 1.5, colors.black),
+            # Fondo Teal solo para la primera fila (encabezado) desde la col 0 hasta la última (-1)
+            ("BACKGROUND", (0, 0), (-1, 0), colors.teal),
+            # Letra blanca solo para la primera fila (encabezado) desde la col 0 hasta la última (-1)
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            # Texto en negrita (Helvetica-Bold) solo para los títulos de la primera fila
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            # Alinear monto a la derecha
+            ("ALIGN", (-1, 1), (-1, -1), "RIGHT"),
+            # Alinea valores de primera fila al centro (encabezado)
+            ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+            # Alinea verticalmente todo al centro
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            # Agrega 8 puntos de separación entre el texto y el borde de abajo (solo encabezado)
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+            # Agrega tamaño de letra a toda la tabla
+            ("FONTSIZE", (0, 0), (-1, -1), 11)
+        ])
+    )
+    return tabla_ingresos, tabla_egresos
+    
+def crear_pdf(fecha, ingresos, egresos):
+    # Crea el documento PDF.
+    doc = SimpleDocTemplate(f"{fecha}.pdf")
+
+    # Lista donde se irán agregando todos los elementos del PDF
+    elementos = []
+
+    # Obtiene los estilos predeterminados de ReportLab.
+    estilos = getSampleStyleSheet()
+
+    # Titulo para ingresos
+    texto_ingresos = (
+        f"COMEDOR POPULAR N°1 (2 DE MAYO)<br/><br/>"
+        f"INGRESOS REPORTE MENSUAL<br/>"
+        f"{fecha_texto(fecha)} {fecha[:4]}"
+    )
+
+    datos_ingresos, datos_egresos = crear_listas_de_datos(ingresos, egresos)
+
+    # Parrafo y agregarlo a la lista para la primera hoja
+    encabezado = Paragraph(texto_ingresos, estilos["Title"])
+    elementos.append(encabezado)
+
+    # Espacio entre titulo y tabla Spacer(ancho, alto)
+    elementos.append(Spacer(1, 20))
+
+    # Implementacion de tabla ingresos con su diseño
+    tabla_ingresos, tabla_egresos = crear_tablas_pdf(datos_ingresos, datos_egresos, elementos)
     elementos.append(tabla_ingresos)
 
     # Nueva hoja
     elementos.append(PageBreak())
+
+    # Titulo para egresos
+    texto_egresos = (
+        f"COMEDOR POPULAR N°1 (2 DE MAYO)<br/><br/>"
+        f"EGRESOS REPORTE MENSUAL<br/>"
+        f"{fecha_texto(fecha)} {fecha[:4]}"
+    )
+
+    # Parrafo y agregarlo a la lista para la segunda hoja
+    encabezado = Paragraph(texto_egresos, estilos["Title"])
+    elementos.append(encabezado)
+
+    # Espacio entre titulo y tabla Spacer(ancho, alto)
+    elementos.append(Spacer(1, 20))
+
+    # Implementacion de tablas egresos con su diseño
+    elementos.append(tabla_egresos)
+
     # Construye el PDF utilizando los elementos de la lista.
     doc.build(elementos)
 
@@ -149,25 +229,8 @@ def generar_pdf(cursor):
     ingresos = ingresos_encontrados(cursor, fecha)
     egresos = egresos_encontrados(cursor, fecha)
 
-    if not ingresos:
-        print(f"No existen ingresos para el año y mes {fecha}.")
+    if not ingresos and not egresos:
+        print(f"No existen ingresos ni egresos en el año {fecha}.")
     else:
-        print(f"Se encontraron {len(ingresos)} ingresos en {fecha}.")
-        
-        total_ingresos = 0
-        for _, _, _, baño, agua, papel in ingresos:
-            total_ingreso = baño + agua + papel
-            total_ingresos += total_ingreso
-        print(f"Total ingresos: S/. {total_ingresos}\n")
-        crear_pdf(fecha, ingresos, total_ingresos)
+        crear_pdf(fecha, ingresos, egresos)
         print("PDF generado exitosamente.")
-    
-    if not egresos:
-        print(f"No existen egresos para el año y mes {fecha}.")
-    else:
-        print(f"Se encontraron {len(egresos)} egresos en {fecha}.")
-
-        total_egresos = 0
-        for _, _, _, monto in egresos:
-            total_egresos += monto
-        print(f"Total egresos: S/. {total_egresos}")
