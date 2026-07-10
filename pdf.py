@@ -13,20 +13,7 @@ def ingresos_encontrados(cursor, fecha):
     ingresos = cursor.fetchall()
 
     # Una lista vacía se evalúa como False en Python.
-    # Si no existen ingresos para el período solicitado, se informa al usuario.
-    if not ingresos:
-        print(f"No existen ingresos para el año y mes {patron_buscado}.")
-    else:
-        print("\n========== INGRESOS ==========\n")
-
-        # Cada elemento de 'ingresos' es una tupla con este formato:
-        # (id, fecha, nombre, baño, agua, papel)
-        # Python asigna automáticamente cada columna a su variable.
-        for _, fecha, nombre, baño, agua, papel in ingresos:
-
-            # '_' recibe el ID del registro, pero no se utilizará.
-            print(f"Fecha: {fecha} | Nombre: {nombre} | S/.Baño: {baño} | S/.Agua: {agua} | S/.Papel: {papel}")
-
+    return ingresos
 
 def egresos_encontrados(cursor, fecha):
     # Agrega '%' al final para buscar todas las fechas que comiencen
@@ -43,16 +30,36 @@ def egresos_encontrados(cursor, fecha):
     egresos = cursor.fetchall()
 
     # Una lista vacía se evalúa como False en Python.
-    # Si no existen egresos para el período solicitado, se informa al usuario.
-    if not egresos:
-        print(f"No existen egresos para el año y mes {patron_buscado}.")
+    return egresos
+
+def generar_pdf(cursor):
+    año = input("Año(AAAA): ")
+    mes = input("Mes(MM): ")
+    print("")
+
+    mes = mes.zfill(2)
+    fecha = f"{año}-{mes}"
+
+    ingresos = ingresos_encontrados(cursor, fecha)
+    egresos = egresos_encontrados(cursor, fecha)
+
+    if not ingresos:
+        print(f"No existen ingresos para el año y mes {fecha}.")
     else:
-        print("\n========== EGRESOS ==========\n")
+        print(f"Se encontraron {len(ingresos)} ingresos en {fecha}.")
+        
+        total_ingresos = 0
+        for _, _, _, baño, agua, papel in ingresos:
+            total_ingreso = baño + agua + papel
+            total_ingresos += total_ingreso
+        print(f"Total ingresos: S/. {total_ingresos}\n")
+    
+    if not egresos:
+        print(f"No existen egresos para el año y mes {fecha}.")
+    else:
+        print(f"Se encontraron {len(egresos)} egresos en {fecha}.")
 
-        # Cada elemento de 'egresos' es una tupla con este formato:
-        # (id, fecha, concepto, monto)
-        # Python asigna automáticamente cada columna a su variable.
-        for _, fecha, concepto, monto in egresos:
-
-            # '_' recibe el ID del registro, pero no se utilizará.
-            print(f"Fecha: {fecha} | Concepto: {concepto} | Monto: {monto}")
+        total_egresos = 0
+        for _, _, _, monto in egresos:
+            total_egresos += monto
+        print(f"Total egresos: S/. {total_egresos}")
