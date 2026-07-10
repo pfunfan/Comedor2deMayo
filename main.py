@@ -12,7 +12,7 @@ crear_tablas(cursor)
 # Menu de opciones y programa
 while True:
     print("""
-    =========== COMEDOR POPULAR ===========
+    =========== COMEDOR N°1 "2 DE MAYO" ===========
           
     1. Ingresos
     2. Egresos
