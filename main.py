@@ -58,7 +58,8 @@ while True:
             2. Mostrar egresos
             3. Editar egreso
             4. Eliminar egreso
-            0. Volver""")
+            0. Volver
+            """)
 
             opcion_egresos = pedir_entero("Seleccione una opción: ")
 
