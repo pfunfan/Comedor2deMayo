@@ -1,3 +1,5 @@
+from datetime import datetime
+
 # Solicita al usuario un monto y valida que la entrada sea un número decimal.
 # Se utiliza para registrar valores monetarios como ingresos y egresos.
 def pedir_monto(mensaje):
@@ -42,3 +44,13 @@ def pedir_monto_opcional(mensaje, valor_actual):
             return float(dato)
         except ValueError:
             print("Error: Debe ingresar un número válido.")
+
+# Valida que una fecha tenga el formato AAAA-MM-DD.
+# También verifica que la fecha exista realmente.
+# Devuelve True si la fecha es válida y False en caso contrario.
+def validar_fecha(fecha):
+    try:
+        datetime.strptime(fecha, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False

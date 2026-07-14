@@ -2,24 +2,33 @@ from funciones_auxiliares import *
 
 # Registra un nuevo ingreso en la base de datos.
 # Solicita los datos al usuario, valida los montos y guarda el registro.
+# Se valida la fecha y si no vuelve a preguntar
 def registrar_ingreso(conn, cursor):
-    # Solicitar información del ingreso
-    fecha = input("Ingrese fecha (AAAA-MM-DD): ")
-    nombre = input("Ingrese nombre: ")
-    baño = pedir_monto("Ingrese monto del baño: ")
-    agua = pedir_monto("Ingrese monto del agua: ")
-    papel = pedir_monto("Ingrese monto del papel: ")
-    
-    # Agrupar los datos en una tupla para enviarlos a la consulta SQL
-    datos = (fecha, nombre, baño, agua, papel)
+    while True:
+        # Solicitar información del ingreso
+        fecha = input("Ingrese fecha (AAAA-MM-DD) o escriba 'salir': ")
+        
+        if fecha.strip().lower() == "salir": # Elimina espacios de los costados y pone a minusculas
+            break
+        if not validar_fecha(fecha):
+            print("Fecha inválida.")
+            continue
 
-    # Insertar el nuevo ingreso en la tabla Ingresos
-    cursor.execute("""INSERT INTO Ingresos (fecha, nombre, baño, agua, papel)
-         VALUES (?, ?, ?, ?, ?)""", datos)
+        nombre = input("Ingrese nombre: ")
+        baño = pedir_monto("Ingrese monto del baño: ")
+        agua = pedir_monto("Ingrese monto del agua: ")
+        papel = pedir_monto("Ingrese monto del papel: ")
+
+        # Agrupar los datos en una tupla para enviarlos a la consulta SQL
+        datos = (fecha, nombre, baño, agua, papel)
+
+        # Insertar el nuevo ingreso en la tabla Ingresos
+        cursor.execute("""INSERT INTO Ingresos (fecha, nombre, baño, agua, papel)
+            VALUES (?, ?, ?, ?, ?)""", datos)
     
-    # Confirmar los cambios realizados en la base de datos
-    conn.commit()
-    print("Ingreso guardado correctamente\n")
+        # Confirmar los cambios realizados en la base de datos
+        conn.commit()
+        print("Ingreso guardado exitosamente.\n")
 
 # Muestra todos los ingresos registrados en la base de datos.
 def mostrar_ingresos(cursor):
@@ -45,7 +54,7 @@ def editar_ingreso(conn, cursor):
 
     # Verificar si existe el registro solicitado
     if fila is None:
-        print(f"No existe el ID = {id_ingreso} en la base de datos.\n")
+        print(f"No existe el ID = {id_ingreso} en la base de datos.")
     else:
         print(f"""
         ======= DATOS ACTUALES ======= 
@@ -97,7 +106,7 @@ def editar_ingreso(conn, cursor):
         
         # Guardar los cambios en la base de datos
         conn.commit()
-        print("Ingreso actualizado correctamente.\n")
+        print("Ingreso actualizado correctamente.")
 
 # Elimina un ingreso existente mediante su ID.
 # Antes de eliminar solicita confirmación al usuario.
@@ -113,7 +122,7 @@ def eliminar_ingreso(conn, cursor):
 
     # Verificar si existe el ingreso
     if fila is None:
-        print(f"No existe el ID = {id_ingreso} en la base de datos.\n")
+        print(f"No existe el ID = {id_ingreso} en la base de datos.")
     else:
         # Mostrar los datos del ingreso que será eliminado
         print(f"""
@@ -135,6 +144,6 @@ def eliminar_ingreso(conn, cursor):
 
             # Guardar los cambios realizados
             conn.commit()
-            print("Ingreso eliminado correctamente.\n")
+            print("Ingreso eliminado correctamente.")
         else:
-            print("Ok. Redirigiendo al menú.\n")
+            print("Ok. Redirigiendo al menú.")

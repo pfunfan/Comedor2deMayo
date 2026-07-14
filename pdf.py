@@ -6,6 +6,7 @@ from reportlab.lib import colors
 from reportlab.platypus import Spacer
 from reportlab.platypus import PageBreak
 import os
+from funciones_auxiliares import *
 
 def ingresos_encontrados(cursor, fecha):
     # Busca todos los ingresos registrados dentro del mes seleccionado.
@@ -70,7 +71,8 @@ def fecha_texto(fecha):
         return "NOVIEMBRE"
     elif fecha[-2:] == "12":
         return "DICIEMBRE"
-
+    else:
+        return "MES INVALIDO"
 
 def total_ingresos_egresos(ingresos, egresos):
     # Calcula el total acumulado de ingresos y egresos del periodo.
@@ -90,7 +92,6 @@ def total_ingresos_egresos(ingresos, egresos):
         total_egresos += monto
     
     return total_ingresos, total_egresos
-
 
 def crear_listas_de_datos(ingresos, egresos, total_ingresos, total_egresos):
 
@@ -126,7 +127,6 @@ def crear_listas_de_datos(ingresos, egresos, total_ingresos, total_egresos):
     datos_egresos.append(["TOTAL", "", f"S/. {total_egresos:.2f}"])
 
     return datos_ingresos, datos_egresos
-
 
 def crear_tablas_ie(datos_ingresos, datos_egresos):
     # Crea las tablas de ingresos y egresos utilizando los datos preparados.
@@ -227,10 +227,10 @@ def crear_tablas_ie(datos_ingresos, datos_egresos):
 def lista_balance(total_ingresos, total_egresos, mes):
     # Solicita datos adicionales que no vienen de la base de datos.
     # Estos valores forman parte del balance mensual del comedor.
-    ingreso_cobranza = float(input("Ingreso por cobranza (socias): "))
-    alquiler_pescado = float(input("Alquiler pescado: "))
-    ingreso_luz = float(input("Ingreso por luz: "))
-    saldo_mes_anterior = float(input("Saldo mes anterior: "))
+    ingreso_cobranza = pedir_monto("Ingreso por cobranza (socias): ")
+    alquiler_pescado = pedir_monto("Alquiler pescado: ")
+    ingreso_luz = pedir_monto("Ingreso por luz: ")
+    saldo_mes_anterior = pedir_monto("Saldo mes anterior: ")
 
     # Calcula el total real de ingresos incluyendo:
     # ingresos registrados + ingresos adicionales + saldo anterior.
@@ -273,7 +273,6 @@ def lista_balance(total_ingresos, total_egresos, mes):
     ]
 
     return datos_balance
-
 
 def crear_tabla_balance(datos_balance):
 
@@ -392,7 +391,7 @@ def crear_pdf(fecha, ingresos, egresos, balance):
     elementos.append(tabla_egresos)
 
     # Verifica si el usuario desea agregar el balance mensual.
-    if balance == "1":
+    if balance == 1:
         # Agrega espacio antes de la tabla del balance.
         elementos.append(Spacer(1, 40))
 
@@ -419,21 +418,27 @@ def crear_pdf(fecha, ingresos, egresos, balance):
     # agregados anteriormente.
     doc.build(elementos)
 
-
-
 def generar_pdf(cursor):
-    # Solicita el año y mes que se desea consultar.
-    año = input("Año(AAAA): ")
-    mes = input("Mes(MM): ")
-    print("")
+    while True:
+        # Solicita el año y mes que se desea consultar.
+        año = input("Año(AAAA): ")
+        mes = input("Mes(MM): ")
 
-    # Completa el mes con un cero inicial si es necesario.
-    # Ejemplo: "7" se convierte en "07".
-    mes = mes.zfill(2)
+        # Completa el mes con un cero inicial si es necesario.
+        # Ejemplo: "7" se convierte en "07".
+        mes = mes.zfill(2)
 
-    # Construye el formato utilizado para buscar en la base de datos.
-    # Ejemplo: "2026-07".
-    fecha = f"{año}-{mes}"
+        # Construye el formato utilizado para buscar en la base de datos.
+        # Ejemplo: "2026-07".
+        fecha = f"{año}-{mes}"
+
+        # COmprobamos si es una fecha válida si no se vuelve a pedir
+        fecha_temporal = fecha + "-01"
+        if not validar_fecha(fecha_temporal):
+            print("Fecha inválida.")
+            continue
+
+        break
 
     # Busca los registros de ingresos y egresos correspondientes
     # al mes seleccionado.
@@ -446,7 +451,7 @@ def generar_pdf(cursor):
         print(f"No existen ingresos ni egresos en el año {fecha}.")
     else:
         # Pregunta si el usuario desea incluir el balance mensual.
-        balance = input(
+        balance = pedir_entero(
             "Desea agregar el balance al pdf? (1.Si  2.No): "
         )
 

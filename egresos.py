@@ -2,23 +2,33 @@ from funciones_auxiliares import *
 
 # Registra un nuevo egreso en la base de datos.
 # Solicita los datos al usuario, valida el monto y guarda el registro.
+# Se valida la fecha y si no vuelve a preguntar
 def registrar_egreso(conn, cursor):
-    # Solicitar información del egreso
-    fecha = input("Ingrese fecha (AAAA-MM-DD): ")
-    concepto = input("Ingrese concepto: ")
-    monto = pedir_monto("Ingrese el monto: ")
-    
-    # Agrupar los datos en una tupla para enviarlos a la consulta SQL
-    datos_egreso = (fecha, concepto, monto)
+    while True:
+        # Solicitar información del egreso
+        fecha = input("Ingrese fecha (AAAA-MM-DD) o 'salir: ")
 
-    # Insertar el nuevo egreso en la tabla Egresos
-    cursor.execute("""INSERT INTO Egresos (fecha, concepto, monto)
-         VALUES (?, ?, ?)""", datos_egreso)
+        if fecha.strip().lower() == "salir":
+            break
+
+        if not validar_fecha(fecha):
+            print("Fecha inválida.")
+            continue
     
-    # Confirmar los cambios realizados en la base de datos
-    conn.commit()
+        concepto = input("Ingrese concepto: ")
+        monto = pedir_monto("Ingrese el monto: ")
     
-    print("Egreso guardado correctamente.\n")
+        # Agrupar los datos en una tupla para enviarlos a la consulta SQL
+        datos_egreso = (fecha, concepto, monto)
+
+        # Insertar el nuevo egreso en la tabla Egresos
+        cursor.execute("""INSERT INTO Egresos (fecha, concepto, monto)
+            VALUES (?, ?, ?)""", datos_egreso)
+    
+        # Confirmar los cambios realizados en la base de datos
+        conn.commit()
+    
+        print("Egreso guardado correctamente.\n")
 
 # Muestra todos los egresos registrados en la base de datos.
 def mostrar_egresos(cursor):
@@ -44,7 +54,7 @@ def editar_egreso(conn, cursor):
 
     # Verificar si existe el registro solicitado
     if fila is None:
-        print(f"No existe el ID = {id_egreso} en la base de datos")
+        print(f"No existe el ID = {id_egreso} en la base de datos.")
     else:
         print(f"""
         ======= DATOS ACTUALES =======
@@ -89,7 +99,7 @@ def editar_egreso(conn, cursor):
         
         # Guardar los cambios realizados
         conn.commit()
-        print("Egreso actualizado correctamente.\n")
+        print("Egreso actualizado exitosamente.")
 
 # Elimina un egreso existente mediante su ID.
 # Antes de eliminar solicita confirmación al usuario.
@@ -105,7 +115,7 @@ def eliminar_egreso(conn, cursor):
 
     # Verificar si existe el egreso
     if fila is None:
-        print(f"No existe el ID = {id_egreso} en la base de datos.\n")
+        print(f"No existe el ID = {id_egreso} en la base de datos.")
     else:
         # Mostrar los datos del egreso que será eliminado
         print(f"""
@@ -125,6 +135,6 @@ def eliminar_egreso(conn, cursor):
 
             # Guardar los cambios realizados
             conn.commit()
-            print("Egreso eliminado correctamente.\n")
+            print("Egreso eliminado correctamente.")
         else:
-            print("Ok. Redirigiendo al menú.\n")
+            print("Ok. Redirigiendo al menú.")
